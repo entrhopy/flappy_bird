@@ -1,8 +1,6 @@
 import pygame
 import random
 
-from pygame.time import Clock
-
 pygame.init()
 
 
@@ -19,12 +17,14 @@ tubo_su = pygame.transform.flip(tubo_giu, False, True)
 SCHERMO = pygame.display.set_mode((288,512))
 #imposto fps
 FPS = 50
-
+#vel di avanz
+VEL_AVANZ = 3
 
 #funzioni di gioco
 def disegna_oggetti():
     SCHERMO.blit(sfondo, (0,0))
     SCHERMO.blit(uccello, (uccellox, uccelloy))
+    SCHERMO.blit(base, (basex,400))
 
 def aggiorna():
     pygame.display.update()
@@ -33,24 +33,43 @@ def aggiorna():
 
 def inizializza():
     global uccellox, uccelloy, uccello_vely
+    global basex
     uccellox, uccelloy = 60, 150
     uccello_vely = 0
+    basex = 0
+
+def hai_perso():
+    SCHERMO.blit(gameover, (50,180))
+    aggiorna()
+    ricominciamo = False
+    while not ricominciamo:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                inizializza()
+                ricominciamo = True
+            if event.type == pygame.QUIT:
+                pygame.quit()
 
 #inizializzo variabili globali: posizione uccello e velocità caduta
 inizializza()
 
 #ciclo principale
 while True:
+    basex -= VEL_AVANZ
+    if basex < -45: basex = 0
     #gravità
     uccello_vely += 1
     uccelloy += uccello_vely
+
+    #comandi
     for event in pygame.event.get():
         if (event.type == pygame.KEYDOWN
             and event.key == pygame.K_UP ):
             uccello_vely = -10
         if event.type == pygame.QUIT:
             pygame.quit()
-
+    if uccelloy > 380:
+        hai_perso()
     #aggiornamento schermo
     disegna_oggetti()
     aggiorna()
