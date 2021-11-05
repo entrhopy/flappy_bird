@@ -1,5 +1,8 @@
+from types import FunctionType
 import pygame
 import random
+
+from pygame import transform
 
 pygame.init()
 
@@ -21,6 +24,8 @@ SCHERMO = pygame.display.set_mode((288, 512))
 FPS = 50
 # vel di avanz
 VEL_AVANZ = 3
+#FONT
+FONT = pygame.font.SysFont('Comic Sans MS', 50, bold=True)
 
 
 # classe tubi
@@ -43,10 +48,18 @@ class tubi_classe:
         uccello_lato_su = uccelloy+tolleranza
         uccello_lato_giu = uccelloy+uccello.get_height()-tolleranza
         tubi_lato_su = self.y+110
-        tubi_lato_giu = self+210
+        tubi_lato_giu = self.y+210
         if uccello_lato_dx > tubi_lato_sx and uccello_lato_sx < tubi_lato_dx:
             if uccello_lato_su < tubi_lato_su or uccello_lato_giu > tubi_lato_giu:
                 hai_perso()
+    def fra_i_tubi(self,uccello,uccellox):
+        tolleranza = 5
+        uccello_lato_dx = uccellox+uccello.get_width()-tolleranza
+        uccello_lato_sx = uccellox+tolleranza
+        tubi_lato_dx = self.x + tubo_giu.get_width()
+        tubi_lato_sx = self.x
+        if uccello_lato_dx > tubi_lato_sx and uccello_lato_sx < tubi_lato_dx:
+                return True 
 # funzioni di gioco
 
 def disegna_oggetti():
@@ -55,7 +68,8 @@ def disegna_oggetti():
         t.avanza_e_disegna()
     SCHERMO.blit(uccello, (uccellox, uccelloy))
     SCHERMO.blit(base, (basex, 400))
-
+    punti_render = FONT.render(str(punti), 1, (255,255,255))
+    SCHERMO.blit(punti_render, (144,0))
 
 def aggiorna():
     pygame.display.update()
@@ -66,10 +80,14 @@ def inizializza():
     global uccellox, uccelloy, uccello_vely
     global basex
     global tubi
-
+    global puntu
+    global fra_i_tubi
     uccellox, uccelloy = 60, 150
     uccello_vely = 0
     basex = 0
+    global punti
+    punti = 0
+    fra_i_tubi = False
     tubi = []
     tubi.append(tubi_classe())
 
@@ -107,8 +125,23 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
     if tubi[-1].x < 150: tubi.append(tubi_classe())
+    #collisione uccello-tubo
     for t in tubi:
         t.collisione(uccello, uccellox, uccelloy)
+    #fra i tubi?
+    if not fra_i_tubi:
+        for t in tubi:
+            if t.fra_i_tubi(uccello,uccellox):
+                fra_i_tubi = True
+                break 
+    if fra_i_tubi:
+            fra_i_tubi = False
+            for t in tubi:
+                    if t.fra_i_tubi(uccello,uccellox):
+                        fra_i_tubi = True
+                        break
+            if not fra_i_tubi:
+                punti += 1
     #collisione con base
     if uccelloy > 380:
         hai_perso()
