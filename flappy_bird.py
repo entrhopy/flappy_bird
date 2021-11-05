@@ -34,8 +34,19 @@ class tubi_classe:
         SCHERMO.blit(tubo_giu, (self.x,self.y+210))
         SCHERMO.blit(tubo_su, (self.x,self.y-210))
 
-
-
+    def collisione(self,uccello,uccellox, uccelloy):
+        tolleranza = 5
+        uccello_lato_dx = uccellox+uccello.get_width()-tolleranza
+        uccello_lato_sx = uccellox+tolleranza
+        tubi_lato_dx = self.x + tubo_giu.get_width()
+        tubi_lato_sx = self.x 
+        uccello_lato_su = uccelloy+tolleranza
+        uccello_lato_giu = uccelloy+uccello.get_height()-tolleranza
+        tubi_lato_su = self.y+110
+        tubi_lato_giu = self+210
+        if uccello_lato_dx > tubi_lato_sx and uccello_lato_sx < tubi_lato_dx:
+            if uccello_lato_su < tubi_lato_su or uccello_lato_giu > tubi_lato_giu:
+                hai_perso()
 # funzioni di gioco
 
 def disegna_oggetti():
@@ -96,6 +107,8 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
     if tubi[-1].x < 150: tubi.append(tubi_classe())
+    for t in tubi:
+        t.collisione(uccello, uccellox, uccelloy)
     #collisione con base
     if uccelloy > 380:
         hai_perso()
